@@ -26,7 +26,7 @@ jobs:
     
     - name: Run DeepEval Tests
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
       run: |
         pytest tests/ -v --tb=short
     
