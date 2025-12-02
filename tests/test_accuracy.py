@@ -1,11 +1,32 @@
 """
-Test LLM accuracy and correctness on security topics
+Test LLM Accuracy and Correctness on Security Topics
+
+This module tests the accuracy and relevancy of LLM-generated responses 
+for API security questions. It validates that the security assistant provides:
+- Relevant answers to security queries
+- Factually correct information
+- Contextually appropriate responses
+
+Tests cover key security topics including:
+- SQL injection prevention
+- Authentication best practices
+- XSS protection
+- Rate limiting
+- Principle of least privilege
+- API key security management
+
+Metrics used:
+- AnswerRelevancyMetric: Measures how relevant responses are to queries
+- FaithfulnessMetric: Ensures responses are grounded in provided context
+- ContextualRelevancyMetric: Validates context relevance to queries
+
+Note: Uses local Ollama instead of OpenAI API to reduce costs
 """
 import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric, ContextualRelevancyMetric
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
 
 
 class TestSecurityAccuracy:
@@ -13,8 +34,8 @@ class TestSecurityAccuracy:
     
     @pytest.fixture
     def llm_client(self):
-        """Initialize LLM client"""
-        return SecurityLLMClient()
+        """Initialize Ollama LLM client"""
+        return OllamaSecurityClient(model="llama3")
     
     def test_sql_injection_answer_relevancy(self, llm_client):
         """Test answer relevancy for SQL injection query"""

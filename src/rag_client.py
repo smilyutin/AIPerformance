@@ -1,5 +1,47 @@
 """
-RAG (Retrieval Augmented Generation) client for security documentation
+RAG (Retrieval Augmented Generation) Client for Security Documentation
+
+This module implements a Retrieval Augmented Generation system for security
+knowledge base queries. It combines document retrieval with LLM generation
+to provide accurate, context-grounded security advice.
+
+RAG Pipeline:
+1. Query Analysis: Extract keywords and intent
+2. Context Retrieval: Find relevant security documentation
+3. Response Generation: Generate answers using retrieved context
+4. Quality Assessment: Evaluate relevance and faithfulness
+
+Knowledge Base Topics:
+- SQL Injection: Prevention techniques and best practices
+- XSS Prevention: Input sanitization and output encoding
+- Rate Limiting: API protection strategies
+- Authentication: OAuth 2.0, JWT, API keys, RBAC
+- Least Privilege: Access control principles
+
+Retrieval Strategy:
+- Keyword-based matching with topic weighting
+- Semantic keyword mappings (e.g., "auth" → ["oauth", "jwt"])
+- Configurable top-k results (default: 3)
+- Score-based ranking
+
+Note: Current implementation uses simple keyword matching.
+Production deployments should use vector embeddings (e.g., OpenAI embeddings)
+with a vector database (Pinecone, Weaviate, ChromaDB) for better retrieval.
+
+Usage:
+    rag_client = SecurityRAGClient(api_key="your-key")
+    
+    # Generate response with automatic retrieval
+    result = rag_client.generate_rag_response(
+        query="How do I prevent SQL injection?"
+    )
+    
+    # Access response and context
+    print(result["response"])
+    print(result["retrieval_context"])
+    
+    # Evaluate context relevance
+    score = rag_client.evaluate_context_relevance(query, context)
 """
 import os
 from typing import List, Optional

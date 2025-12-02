@@ -1,11 +1,35 @@
 """
-Test for hallucinations and factual accuracy in security advice
+Test for Hallucinations and Factual Accuracy in Security Advice
+
+This module detects hallucinations and ensures factual accuracy in LLM-generated
+security responses. Hallucinations are fabricated or misleading information not 
+supported by the provided context.
+
+The tests verify that security advice is:
+- Grounded in factual context
+- Free from fabricated security claims
+- Unbiased and objective
+- Based on industry standards
+
+Topics tested:
+- OAuth 2.0 implementation
+- Encryption standards (AES, TLS)
+- JWT token handling
+- CSRF protection methods
+- Password hashing algorithms
+- API versioning recommendations
+
+Metrics used:
+- HallucinationMetric: Detects fabricated information not in context
+- BiasMetric: Identifies biased or unfair recommendations
+
+Note: Uses local Ollama instead of OpenAI API to reduce costs
 """
 import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import HallucinationMetric, BiasMetric
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
 
 
 class TestSecurityHallucination:
@@ -13,8 +37,8 @@ class TestSecurityHallucination:
     
     @pytest.fixture
     def llm_client(self):
-        """Initialize LLM client"""
-        return SecurityLLMClient()
+        """Initialize Ollama LLM client"""
+        return OllamaSecurityClient(model="llama3")
     
     def test_oauth_implementation_no_hallucination(self, llm_client):
         """Test that OAuth advice is grounded in context"""

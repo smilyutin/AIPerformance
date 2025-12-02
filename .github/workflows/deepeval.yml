@@ -19,20 +19,24 @@ jobs:
       with:
         python-version: '3.10'
     
+    - name: Install Ollama
+      run: |
+        curl -fsSL https://ollama.com/install.sh | sh
+        
+    - name: Start Ollama service
+      run: |
+        ollama serve &
+        sleep 5
+        
+    - name: Pull Llama3 model
+      run: |
+        ollama pull llama3
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Run DeepEval Tests
-      env:
-        OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+    - name: Run DeepEval Tests with Ollama
       run: |
         pytest tests/ -v --tb=short
-    
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: deepeval-results
-        path: deepeval_results/
