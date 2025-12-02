@@ -180,6 +180,19 @@ The project includes a GitHub Actions workflow (`.github/workflows/deepeval.yml`
 - Executes weekly on Sunday (for regression detection)
 - Uploads test results as artifacts
 
+### Setting Up GitHub Actions
+
+To enable automated testing in GitHub Actions:
+
+1. Go to your repository **Settings** → **Secrets and variables** → **Actions**
+2. Click **"New repository secret"**
+3. Add secret:
+   - **Name**: `OPENAI_API_KEY`
+   - **Value**: Your OpenAI API key
+4. Save the secret
+
+The workflow will automatically use this secret to run tests on every push and pull request.
+
 ## 🎯 Use Cases
 
 1. **Security Chatbot Validation**: Ensure your security chatbot provides accurate advice
