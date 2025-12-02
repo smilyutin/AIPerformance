@@ -1,0 +1,42 @@
+[
+  {
+    "input": "Explain SQL injection vulnerabilities",
+    "actual_output": "SQL injection is a code injection technique where attackers insert malicious SQL statements into input fields. To prevent it, use parameterized queries, input validation, and ORM frameworks.",
+    "expected_output": "SQL injection occurs when untrusted data is sent to an interpreter as part of a command. Prevention includes parameterized queries and input sanitization.",
+    "retrieval_context": [
+      "SQL injection is one of the most common web application vulnerabilities. It allows attackers to interfere with database queries.",
+      "Prevention methods include: 1) Use prepared statements with parameterized queries, 2) Use stored procedures, 3) Validate user input, 4) Use ORM libraries.",
+      "OWASP ranks SQL injection as a critical security risk in web applications."
+    ]
+  },
+  {
+    "input": "What is cross-site scripting (XSS)?",
+    "actual_output": "XSS is a security vulnerability that allows attackers to inject malicious scripts into web pages viewed by users. Prevent it by sanitizing user input, using Content Security Policy headers, and encoding output.",
+    "expected_output": "Cross-site scripting enables attackers to inject client-side scripts. Mitigation includes input validation, output encoding, and CSP headers.",
+    "retrieval_context": [
+      "Cross-Site Scripting (XSS) attacks occur when an attacker injects malicious scripts into content from trusted websites.",
+      "There are three main types: Stored XSS, Reflected XSS, and DOM-based XSS.",
+      "Defense mechanisms: sanitize input, encode output, use HTTP-only cookies, implement Content Security Policy."
+    ]
+  },
+  {
+    "input": "How does rate limiting protect APIs?",
+    "actual_output": "Rate limiting restricts the number of API requests a client can make within a time window. This prevents abuse, protects against DDoS attacks, and ensures fair resource usage across all users.",
+    "expected_output": "Rate limiting controls request frequency to prevent abuse and ensure system stability. It's essential for API security and availability.",
+    "retrieval_context": [
+      "Rate limiting is a strategy to limit network traffic and prevent API abuse by restricting request frequency.",
+      "Common strategies: Fixed window, Sliding window, Token bucket algorithm.",
+      "Benefits include protection against DDoS, preventing brute force attacks, and ensuring fair usage."
+    ]
+  },
+  {
+    "input": "What is the principle of least privilege?",
+    "actual_output": "The principle of least privilege means granting users and systems only the minimum permissions needed to perform their tasks. This limits potential damage from security breaches or mistakes.",
+    "expected_output": "Least privilege ensures entities have only necessary access rights, minimizing security risks and blast radius of breaches.",
+    "retrieval_context": [
+      "The principle of least privilege (PoLP) is a computer security concept requiring minimal access rights for users, accounts, and processes.",
+      "Implementation: Role-based access control (RBAC), just-in-time access, regular permission audits.",
+      "Benefits: Reduced attack surface, limited breach impact, better compliance with security standards."
+    ]
+  }
+]

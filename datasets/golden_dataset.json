@@ -1,0 +1,26 @@
+[
+  {
+    "input": "How do I reset my password?",
+    "actual_output": "To reset your password, click 'Forgot Password' on the login page, enter your email, and follow the instructions sent to your inbox.",
+    "expected_output": "You can reset your password by clicking the 'Forgot Password' link and following the email instructions.",
+    "context": ["User password management", "Security best practices"]
+  },
+  {
+    "input": "What authentication methods do you support?",
+    "actual_output": "We support OAuth 2.0, API keys, and JWT tokens for authentication.",
+    "expected_output": "Our API supports OAuth 2.0, API keys, and JWT token-based authentication.",
+    "context": ["API authentication", "Security protocols"]
+  },
+  {
+    "input": "How do I secure my API keys?",
+    "actual_output": "Store API keys in environment variables, never commit them to version control, rotate them regularly, and use read-only keys when possible.",
+    "expected_output": "Best practices include storing keys in environment variables, regular rotation, and using minimal permissions.",
+    "context": ["API security", "Key management"]
+  },
+  {
+    "input": "What should I do if my API key is compromised?",
+    "actual_output": "Immediately revoke the compromised key from your dashboard, generate a new one, and review recent API activity for suspicious behavior.",
+    "expected_output": "Revoke the key immediately, generate a replacement, and audit recent access logs.",
+    "context": ["Security incident response", "API key management"]
+  }
+]

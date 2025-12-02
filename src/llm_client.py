@@ -1,0 +1,114 @@
+"""
+LLM Client for security-focused responses
+"""
+import os
+from typing import Optional, List, Dict, Any
+from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
+
+
+class SecurityLLMClient:
+    """Client for generating security-focused responses"""
+    
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
+        """
+        Initialize the LLM client
+        
+        Args:
+            api_key: OpenAI API key (defaults to env var)
+            model: Model to use for generation
+        """
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.model = model
+        self.client = OpenAI(api_key=self.api_key)
+    
+    def generate_security_response(self, query: str, context: Optional[str] = None) -> str:
+        """
+        Generate a security-focused response
+        
+        Args:
+            query: User's security question
+            context: Optional context for the response
+            
+        Returns:
+            Generated response
+        """
+        system_prompt = """You are a security expert assistant. Provide accurate, 
+        concise answers about API security, authentication, authorization, and 
+        common vulnerabilities. Focus on practical, actionable advice."""
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+        ]
+        
+        if context:
+            messages.append({
+                "role": "user", 
+                "content": f"Context: {context}\n\nQuestion: {query}"
+            })
+        else:
+            messages.append({"role": "user", "content": query})
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0.3,  # Lower temperature for more consistent security advice
+            max_tokens=500
+        )
+        
+        return response.choices[0].message.content or ""
+    
+    def check_sensitive_data_exposure(self, text: str) -> dict:
+        """
+        Check if text contains potentially sensitive information
+        
+        Args:
+            text: Text to analyze
+            
+        Returns:
+            Analysis results
+        """
+        system_prompt = """Analyze the following text for potential sensitive data exposure.
+        Check for: API keys, passwords, tokens, email addresses, IP addresses, 
+        personal information. Return a JSON-like assessment."""
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": text}
+        ]
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0.1
+        )
+        
+        return {"analysis": response.choices[0].message.content or "", "text": text}
+    
+    def validate_security_advice(self, advice: str, category: str) -> str:
+        """
+        Validate that security advice follows best practices
+        
+        Args:
+            advice: Security advice to validate
+            category: Category (e.g., 'authentication', 'authorization', 'encryption')
+            
+        Returns:
+            Validation result
+        """
+        system_prompt = f"""You are a security auditor. Review the following 
+        {category} advice and verify it follows industry best practices and 
+        standards (OWASP, NIST, etc.). Point out any issues or improvements."""
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": advice}
+        ]
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0.2
+        )
+        
+        return response.choices[0].message.content or ""
