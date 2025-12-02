@@ -112,7 +112,7 @@ class TestSecurityRAG:
         faithfulness = FaithfulnessMetric(threshold=0.7)
         
         assert_test(test_case, [precision, recall, faithfulness])
-    
+    """test"""
     def test_context_relevance_evaluation(self, rag_client):
         """Test the context relevance evaluation function"""
         query = "How do I prevent SQL injection?"
