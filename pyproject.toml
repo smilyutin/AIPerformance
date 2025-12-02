@@ -15,12 +15,5 @@ dependencies = [
     "deepeval>=0.21.0",
 ]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-
 [tool.setuptools]
 packages = ["src", "tests"]
