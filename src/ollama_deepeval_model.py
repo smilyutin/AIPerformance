@@ -50,23 +50,68 @@ class OllamaModel(DeepEvalBaseLLM):
         
         Args:
             prompt: The prompt to generate from
-            schema: Optional JSON schema for structured output
+            schema: Optional JSON schema for structured output (Pydantic model)
             
         Returns:
-            Generated text
+            Generated text or structured object
         """
+        # Determine format parameter for Ollama
+        format_param = None
+        if schema:
+            # If schema is provided, use JSON format for structured output
+            format_param = "json"
+        
         response = ollama.chat(
             model=self.model_name,
             messages=[
                 {"role": "user", "content": prompt}
             ],
+            format=format_param,
             options={
                 "temperature": 0.0,  # Deterministic for eval
                 "num_predict": 1000,
             }
         )
         
-        return response['message']['content']
+        content = response['message']['content']
+        
+        # If schema is provided, parse the JSON response into the schema
+        if schema:
+            import json
+            data = None
+            try:
+                # Parse JSON response
+                data = json.loads(content)
+                
+                # Check if schema is a Pydantic model and convert
+                if hasattr(schema, 'model_validate'):
+                    # Pydantic v2
+                    return schema.model_validate(data)
+                elif hasattr(schema, 'parse_obj'):
+                    # Pydantic v1
+                    return schema.parse_obj(data)
+                elif callable(schema):
+                    # Regular class constructor
+                    return schema(**data)
+                else:
+                    # Return parsed dict if schema is not a class
+                    return data
+                    
+            except json.JSONDecodeError as e:
+                # If JSON parsing fails, return raw content
+                # This allows DeepEval to handle the error
+                print(f"Warning: JSON decode failed: {e}")
+                print(f"Raw content: {content[:200]}")
+                return content
+            except Exception as e:
+                # If schema validation fails, return raw content
+                print(f"Warning: Schema validation failed: {e}")
+                print(f"Schema type: {type(schema)}")
+                if data is not None:
+                    print(f"Parsed data: {data}")
+                return content
+        
+        return content
     
     async def a_generate(self, prompt: str, schema: Optional[dict] = None) -> str:
         """
@@ -77,7 +122,7 @@ class OllamaModel(DeepEvalBaseLLM):
             schema: Optional JSON schema for structured output
             
         Returns:
-            Generated text
+            Generated text or structured object
         """
         # Ollama Python client doesn't have async support yet
         return self.generate(prompt, schema)

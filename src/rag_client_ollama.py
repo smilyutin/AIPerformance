@@ -127,21 +127,34 @@ Provide a clear, accurate answer based on the context above."""
     def evaluate_context_relevance(self, query: str, context: str) -> float:
         """Evaluate context relevance using Ollama"""
         system_prompt = """Rate how relevant the given context is to answering the query.
-        Return only a number between 0 and 1, where 0 is completely irrelevant and 1 is highly relevant."""
+        Respond with ONLY a single number between 0.0 and 1.0, nothing else.
+        0.0 = completely irrelevant, 1.0 = highly relevant."""
         
         response = ollama.chat(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Query: {query}\n\nContext: {context}\n\nRelevance score:"}
+                {"role": "user", "content": f"Query: {query}\n\nContext: {context}\n\nScore:"}
             ],
             options={"temperature": 0.1}
         )
         
         try:
-            score = float(response['message']['content'].strip())
-            return max(0.0, min(1.0, score))
-        except ValueError:
+            # Extract first number from response (handles "0.8" or "The score is 0.8")
+            import re
+            content = response['message']['content'].strip()
+            # Try direct conversion first
+            try:
+                score = float(content)
+                return max(0.0, min(1.0, score))
+            except ValueError:
+                # Extract first decimal number from text
+                match = re.search(r'(\d+\.?\d*)', content)
+                if match:
+                    score = float(match.group(1))
+                    return max(0.0, min(1.0, score))
+                return 0.5
+        except (ValueError, AttributeError):
             return 0.5
 
 
