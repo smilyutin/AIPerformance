@@ -59,15 +59,41 @@ class SecurityRAGClient:
         """
         # Simple keyword matching (in production, use vector embeddings)
         query_lower = query.lower()
+        query_words = set(query_lower.split())
         
         scored_docs = []
         for doc in self.knowledge_base:
             score = 0
-            # Simple scoring based on keyword presence
-            if any(word in doc["content"].lower() for word in query_lower.split()):
-                score += 1
-            if any(word in doc["topic"].lower() for word in query_lower.split()):
-                score += 2
+            topic_lower = doc["topic"].lower()
+            content_lower = doc["content"].lower()
+            
+            # Score based on topic match (highest weight)
+            topic_words = set(topic_lower.split())
+            topic_overlap = len(query_words & topic_words)
+            score += topic_overlap * 3
+            
+            # Score based on content keyword presence
+            for word in query_words:
+                if len(word) > 3:  # Skip short words
+                    if word in content_lower:
+                        score += 1
+                    if word in topic_lower:
+                        score += 2
+            
+            # Specific keyword mappings for better retrieval
+            keyword_mappings = {
+                "authentication": ["authentication", "auth", "oauth", "jwt"],
+                "sql": ["sql", "injection", "database"],
+                "xss": ["xss", "cross-site", "scripting"],
+                "rate": ["rate", "limiting", "ddos"],
+                "privilege": ["privilege", "rbac", "access"],
+            }
+            
+            for key, keywords in keyword_mappings.items():
+                if key in query_lower:
+                    for kw in keywords:
+                        if kw in topic_lower or kw in content_lower:
+                            score += 2
             
             if score > 0:
                 scored_docs.append((score, doc["content"]))
