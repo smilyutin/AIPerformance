@@ -26,11 +26,19 @@ jobs:
     - name: Start Ollama service
       run: |
         ollama serve &
-        sleep 5
+        sleep 10
+        
+    - name: Verify Ollama is running
+      run: |
+        curl -s http://localhost:11434/api/tags || (echo "Ollama not ready" && exit 1)
         
     - name: Pull Llama3 model
       run: |
         ollama pull llama3
+        
+    - name: Verify model is available
+      run: |
+        ollama list | grep llama3
     
     - name: Install dependencies
       run: |
@@ -39,4 +47,4 @@ jobs:
     
     - name: Run DeepEval Tests with Ollama
       run: |
-        pytest tests/ -v --tb=short
+        pytest tests/ -v --tb=long -x
