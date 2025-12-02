@@ -45,16 +45,16 @@ class TestSecurityAccuracy:
     def test_xss_prevention_accuracy(self, llm_client):
         """Test accuracy of XSS prevention advice"""
         query = "How can I protect my web application from XSS attacks?"
-        context = [
+        retrieval_context = [
             "Cross-site scripting (XSS) is a type of security vulnerability.",
             "Prevention includes input sanitization and output encoding."
         ]
-        response = llm_client.generate_security_response(query, context=" ".join(context))
+        response = llm_client.generate_security_response(query, context=" ".join(retrieval_context))
         
         test_case = LLMTestCase(
             input=query,
             actual_output=response,
-            context=context
+            retrieval_context=retrieval_context
         )
         
         faithfulness_metric = FaithfulnessMetric(threshold=0.7)
@@ -97,16 +97,16 @@ class TestSecurityAccuracy:
     def test_api_key_security_advice(self, llm_client):
         """Test API key security recommendations"""
         query = "How should I store and manage API keys securely?"
-        context = [
+        retrieval_context = [
             "Store API keys in environment variables, never in code.",
             "Rotate keys regularly and use read-only keys when possible."
         ]
-        response = llm_client.generate_security_response(query, context=" ".join(context))
+        response = llm_client.generate_security_response(query, context=" ".join(retrieval_context))
         
         test_case = LLMTestCase(
             input=query,
             actual_output=response,
-            context=context
+            retrieval_context=retrieval_context
         )
         
         faithfulness_metric = FaithfulnessMetric(threshold=0.7)
