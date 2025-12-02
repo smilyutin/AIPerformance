@@ -39,7 +39,7 @@ from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
 from openai.types.chat import ChatCompletionMessageParam
 from src.prompt_versions import PromptVersionManager
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityLLMClient
 
 
 class TestPromptRegression:
@@ -48,7 +48,7 @@ class TestPromptRegression:
     @pytest.fixture
     def llm_client(self):
         """Initialize Ollama LLM client"""
-        return SecurityLLMClientOllama()
+        return OllamaSecurityLLMClient()
     
     def generate_response_with_version(self, client, query: str, version: str) -> str:
         """Generate response using specific prompt version"""
@@ -68,7 +68,7 @@ class TestPromptRegression:
         
         return response.choices[0].message.content
     
-    def test_v3_baseline_performance(self, llm_client):
+    def test_v3_baseline_performance(self, llm_client, deepeval_model):
         """Test baseline performance of v3 (production) prompt"""
         query = "What are the security risks of storing passwords in plain text?"
         response = self.generate_response_with_version(llm_client, query, "v3")
@@ -78,10 +78,10 @@ class TestPromptRegression:
             actual_output=response
         )
         
-        relevancy = AnswerRelevancyMetric(threshold=0.7)
+        relevancy = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [relevancy])
     
-    def test_v4_vs_v3_comparison(self, llm_client):
+    def test_v4_vs_v3_comparison(self, llm_client, deepeval_model):
         """Compare v4 experimental prompt against v3 baseline"""
         query = "How should I implement JWT authentication?"
         
@@ -100,13 +100,13 @@ class TestPromptRegression:
             actual_output=v4_response
         )
         
-        relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+        relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         
         # Both versions should meet threshold
         assert_test(test_case_v3, [relevancy_metric])
         assert_test(test_case_v4, [relevancy_metric])
     
-    def test_prompt_consistency_across_versions(self, llm_client):
+    def test_prompt_consistency_across_versions(self, llm_client, deepeval_model):
         """Test that different versions maintain consistency on core topics"""
         query = "What is SQL injection?"
         
@@ -123,10 +123,10 @@ class TestPromptRegression:
                 actual_output=response
             )
             
-            metric = AnswerRelevancyMetric(threshold=0.5)
+            metric = AnswerRelevancyMetric(threshold=0.5, model=deepeval_model)
             assert_test(test_case, [metric])
     
-    def test_v3_detailed_security_advice(self, llm_client):
+    def test_v3_detailed_security_advice(self, llm_client, deepeval_model):
         """Test v3 provides detailed security advice"""
         query = "How do I secure my REST API?"
         response = self.generate_response_with_version(llm_client, query, "v3")
@@ -141,12 +141,13 @@ class TestPromptRegression:
             name="Comprehensiveness",
             criteria="Evaluate how comprehensive and detailed the security advice is. Consider coverage of authentication, authorization, encryption, input validation, and monitoring.",
             evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
-            threshold=0.7
+            threshold=0.7,
+            model=deepeval_model
         )
         
         assert_test(test_case, [comprehensiveness_metric])
     
-    def test_v4_code_examples_quality(self, llm_client):
+    def test_v4_code_examples_quality(self, llm_client, deepeval_model):
         """Test v4 prompt provides quality code examples when appropriate"""
         query = "Show me how to implement rate limiting in Python"
         response = self.generate_response_with_version(llm_client, query, "v4")
@@ -161,12 +162,13 @@ class TestPromptRegression:
             name="Code Quality",
             criteria="Evaluate if the response includes practical, secure code examples when requested. Code should follow best practices and be production-ready.",
             evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
-            threshold=0.55
+            threshold=0.55,
+            model=deepeval_model
         )
         
         assert_test(test_case, [code_quality_metric])
     
-    def test_no_regression_on_critical_topics(self, llm_client):
+    def test_no_regression_on_critical_topics(self, llm_client, deepeval_model):
         """Ensure no regression on critical security topics"""
         critical_queries = [
             "How do I prevent XSS attacks?",
@@ -183,7 +185,7 @@ class TestPromptRegression:
             )
             
             # High threshold for critical security topics
-            relevancy = AnswerRelevancyMetric(threshold=0.75)
+            relevancy = AnswerRelevancyMetric(threshold=0.75, model=deepeval_model)
             assert_test(test_case, [relevancy])
     
     def test_prompt_version_manager(self):

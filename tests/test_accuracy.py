@@ -37,7 +37,7 @@ class TestSecurityAccuracy:
         """Initialize Ollama LLM client"""
         return OllamaSecurityClient(model="llama3")
     
-    def test_sql_injection_answer_relevancy(self, llm_client):
+    def test_sql_injection_answer_relevancy(self, llm_client, deepeval_model):
         """Test answer relevancy for SQL injection query"""
         query = "How do I prevent SQL injection in my API?"
         response = llm_client.generate_security_response(query)
@@ -47,10 +47,10 @@ class TestSecurityAccuracy:
             actual_output=response
         )
         
-        metric = AnswerRelevancyMetric(threshold=0.7)
+        metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_authentication_answer_relevancy(self, llm_client):
+    def test_authentication_answer_relevancy(self, llm_client, deepeval_model):
         """Test answer relevancy for authentication query"""
         query = "What are the best practices for API authentication?"
         response = llm_client.generate_security_response(query)
@@ -60,10 +60,10 @@ class TestSecurityAccuracy:
             actual_output=response
         )
         
-        metric = AnswerRelevancyMetric(threshold=0.7)
+        metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_xss_prevention_accuracy(self, llm_client):
+    def test_xss_prevention_accuracy(self, llm_client, deepeval_model):
         """Test accuracy of XSS prevention advice"""
         query = "How can I protect my web application from XSS attacks?"
         retrieval_context = [
@@ -79,11 +79,11 @@ class TestSecurityAccuracy:
         )
         
         # Only use AnswerRelevancyMetric to avoid timeout issues
-        relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+        relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         
         assert_test(test_case, [relevancy_metric])
     
-    def test_rate_limiting_with_context(self, llm_client):
+    def test_rate_limiting_with_context(self, llm_client, deepeval_model):
         """Test contextual relevancy for rate limiting"""
         query = "Why should I implement rate limiting?"
         context = [
@@ -98,10 +98,10 @@ class TestSecurityAccuracy:
             retrieval_context=context
         )
         
-        contextual_relevancy = ContextualRelevancyMetric(threshold=0.6)
+        contextual_relevancy = ContextualRelevancyMetric(threshold=0.6, model=deepeval_model)
         assert_test(test_case, [contextual_relevancy])
     
-    def test_least_privilege_explanation(self, llm_client):
+    def test_least_privilege_explanation(self, llm_client, deepeval_model):
         """Test explanation of least privilege principle"""
         query = "Explain the principle of least privilege"
         response = llm_client.generate_security_response(query)
@@ -112,10 +112,10 @@ class TestSecurityAccuracy:
             expected_output="The principle of least privilege means granting only minimum necessary permissions to users and systems."
         )
         
-        metric = AnswerRelevancyMetric(threshold=0.7)
+        metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_api_key_security_advice(self, llm_client):
+    def test_api_key_security_advice(self, llm_client, deepeval_model):
         """Test API key security recommendations"""
         query = "How should I store and manage API keys securely?"
         retrieval_context = [
@@ -130,5 +130,5 @@ class TestSecurityAccuracy:
             retrieval_context=retrieval_context
         )
         
-        faithfulness_metric = FaithfulnessMetric(threshold=0.7)
+        faithfulness_metric = FaithfulnessMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [faithfulness_metric])

@@ -40,7 +40,7 @@ class TestSecurityHallucination:
         """Initialize Ollama LLM client"""
         return OllamaSecurityClient(model="llama3")
     
-    def test_oauth_implementation_no_hallucination(self, llm_client):
+    def test_oauth_implementation_no_hallucination(self, llm_client, deepeval_model):
         """Test that OAuth advice is grounded in context"""
         query = "How do I implement OAuth 2.0?"
         context = [
@@ -57,10 +57,10 @@ class TestSecurityHallucination:
             context=context
         )
         
-        metric = HallucinationMetric(threshold=0.7)
+        metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_encryption_standards_no_hallucination(self, llm_client):
+    def test_encryption_standards_no_hallucination(self, llm_client, deepeval_model):
         """Test encryption recommendations are factual"""
         query = "What encryption should I use for sensitive data?"
         context = [
@@ -77,10 +77,10 @@ class TestSecurityHallucination:
             context=context
         )
         
-        metric = HallucinationMetric(threshold=0.7)
+        metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_jwt_token_handling_accuracy(self, llm_client):
+    def test_jwt_token_handling_accuracy(self, llm_client, deepeval_model):
         """Test JWT advice doesn't hallucinate security features"""
         query = "What are JWT security best practices?"
         context = [
@@ -98,10 +98,10 @@ class TestSecurityHallucination:
             context=context
         )
         
-        metric = HallucinationMetric(threshold=0.7)
+        metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_csrf_protection_grounded(self, llm_client):
+    def test_csrf_protection_grounded(self, llm_client, deepeval_model):
         """Test CSRF protection advice is grounded in facts"""
         query = "How do I protect against CSRF attacks?"
         context = [
@@ -119,10 +119,10 @@ class TestSecurityHallucination:
             context=context
         )
         
-        metric = HallucinationMetric(threshold=0.7)
+        metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_password_hashing_no_fabrication(self, llm_client):
+    def test_password_hashing_no_fabrication(self, llm_client, deepeval_model):
         """Test password hashing recommendations are accurate"""
         query = "What's the best way to hash passwords?"
         context = [
@@ -140,10 +140,10 @@ class TestSecurityHallucination:
             context=context
         )
         
-        metric = HallucinationMetric(threshold=0.7)
+        metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
     
-    def test_api_versioning_bias_check(self, llm_client):
+    def test_api_versioning_bias_check(self, llm_client, deepeval_model):
         """Test that API security advice is unbiased"""
         query = "Should I version my API?"
         response = llm_client.generate_security_response(query)
@@ -154,5 +154,5 @@ class TestSecurityHallucination:
         )
         
         # Check for bias in recommendations
-        metric = BiasMetric(threshold=0.7)
+        metric = BiasMetric(threshold=0.7, model=deepeval_model)
         assert_test(test_case, [metric])
