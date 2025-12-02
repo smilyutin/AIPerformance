@@ -37,9 +37,8 @@ from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
-from openai.types.chat import ChatCompletionMessageParam
 from src.prompt_versions import PromptVersionManager
-from src.llm_client_ollama import OllamaSecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
 
 
 class TestPromptRegression:
@@ -48,25 +47,27 @@ class TestPromptRegression:
     @pytest.fixture
     def llm_client(self):
         """Initialize Ollama LLM client"""
-        return OllamaSecurityLLMClient()
+        return OllamaSecurityClient()
     
     def generate_response_with_version(self, client, query: str, version: str) -> str:
         """Generate response using specific prompt version"""
         prompt = PromptVersionManager.get_prompt(version)
         
-        messages: List[ChatCompletionMessageParam] = [
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": query}
-        ]
-        
-        response = client.client.chat.completions.create(
+        # Use Ollama's chat interface
+        import ollama
+        response = ollama.chat(
             model=client.model,
-            messages=messages,
-            temperature=0.3,
-            max_tokens=500
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": query}
+            ],
+            options={
+                "temperature": 0.3,
+                "num_predict": 500,
+            }
         )
         
-        return response.choices[0].message.content
+        return response['message']['content']
     
     def test_v3_baseline_performance(self, llm_client, deepeval_model):
         """Test baseline performance of v3 (production) prompt"""
