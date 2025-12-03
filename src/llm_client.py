@@ -1,5 +1,33 @@
 """
-LLM Client for security-focused responses
+LLM Client for Security-Focused Responses
+
+This module provides a specialized LLM client for generating security-related
+responses with a focus on API security, authentication, and common vulnerabilities.
+
+Key Features:
+- Security-focused system prompts
+- Configurable temperature for consistent advice
+- Context-aware response generation
+- Sensitive data exposure detection
+- Security advice validation
+
+The client is optimized for:
+- Providing accurate security guidance
+- Following industry best practices (OWASP, NIST)
+- Maintaining consistent, actionable advice
+- Avoiding misleading or insecure recommendations
+
+Usage:
+    client = SecurityLLMClient(api_key="your-key", model="gpt-4o-mini")
+    response = client.generate_security_response(
+        query="How do I prevent SQL injection?",
+        context="Use parameterized queries..."
+    )
+
+Configuration:
+- Default model: gpt-4o-mini
+- Temperature: 0.3 (for consistency)
+- Max tokens: 500 per response
 """
 import os
 from typing import Optional, List, Dict, Any
@@ -21,6 +49,36 @@ class SecurityLLMClient:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.model = model
         self.client = OpenAI(api_key=self.api_key)
+    
+    def get_security_advice(self, query: str, system_prompt: Optional[str] = None) -> str:
+        """
+        Generate security advice with optional custom system prompt
+        
+        Args:
+            query: User's security question
+            system_prompt: Optional custom system prompt (for prompt version testing)
+            
+        Returns:
+            Generated response
+        """
+        if system_prompt is None:
+            system_prompt = """You are a security expert assistant. Provide accurate, 
+            concise answers about API security, authentication, authorization, and 
+            common vulnerabilities. Focus on practical, actionable advice."""
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query}
+        ]
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=500
+        )
+        
+        return response.choices[0].message.content or ""
     
     def generate_security_response(self, query: str, context: Optional[str] = None) -> str:
         """

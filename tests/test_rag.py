@@ -1,5 +1,30 @@
 """
-Test RAG (Retrieval Augmented Generation) for security knowledge base
+Test RAG (Retrieval Augmented Generation) for Security Knowledge Base
+
+This module tests the Retrieval Augmented Generation system's ability to:
+- Retrieve relevant security documentation from the knowledge base
+- Generate accurate responses based on retrieved context
+- Evaluate context relevance and precision
+- Maintain faithfulness to source material
+
+RAG Pipeline Tested:
+1. Query processing and keyword extraction
+2. Context retrieval from security knowledge base
+3. Response generation using retrieved context
+4. Quality evaluation of retrieval and generation
+
+Security Topics in Knowledge Base:
+- SQL injection prevention techniques
+- XSS (Cross-Site Scripting) protection
+- Rate limiting strategies
+- Authentication methods (OAuth, JWT, API keys)
+- Principle of least privilege
+
+Metrics used:
+- ContextualPrecisionMetric: Measures retrieval precision
+- ContextualRecallMetric: Evaluates retrieval completeness
+- ContextualRelevancyMetric: Assesses overall retrieval quality
+- FaithfulnessMetric: Ensures response fidelity to context
 """
 import pytest
 from deepeval import assert_test

@@ -1,11 +1,70 @@
 """
-Test LLM accuracy and correctness on security topics
+Test LLM Accuracy and Correctness on Security Topics
+
+This module tests the accuracy and relevancy of LLM-generated responses 
+for API security questions. It validates that the security assistant provides:
+- Relevant answers to security queries
+- Factually correct information
+- Contextually appropriate responses
+
+Tests cover key security topics including:
+- SQL injection prevention
+- Authentication best practices
+- XSS protection
+- Rate limiting
+- Principle of least privilege
+- API key security management
+
+Metrics used:
+- AnswerRelevancyMetric: Measures how relevant responses are to queries
+- FaithfulnessMetric: Ensures responses are grounded in provided context
+- ContextualRelevancyMetric: Validates context relevance to queries
 """
 import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric, ContextualRelevancyMetric
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
+
+
+@pytest.fixture(scope="module")
+def llm_client():
+    """Initialize Ollama LLM client"""
+    return OllamaSecurityClient(model="llama3")
+
+
+@pytest.fixture(scope="module")
+def llm_client():
+    """Initialize OpenAI LLM client"""
+    return SecurityLLMClient(model="gpt-4o-mini")
+
+
+def test_sql_injection_answer_relevancy(llm_client):
+    """Test answer relevancy for SQL injection query"""
+    query = "How do I prevent SQL injection in my API?"
+    response = llm_client.generate_security_response(query)
+    
+    test_case = LLMTestCase(
+        input=query,
+        actual_output=response
+    )
+    
+    metric = AnswerRelevancyMetric(threshold=0.7)
+    assert_test(test_case, [metric])
+
+
+def test_authentication_answer_relevancy(llm_client):
+    """Test answer relevancy for authentication query"""
+    query = "What are the best practices for API authentication?"
+    response = llm_client.generate_security_response(query)
+    
+    test_case = LLMTestCase(
+        input=query,
+        actual_output=response
+    )
+    
+    metric = AnswerRelevancyMetric(threshold=0.7)
+    assert_test(test_case, [metric])
 
 
 @pytest.fixture

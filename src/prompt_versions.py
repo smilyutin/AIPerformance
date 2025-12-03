@@ -1,5 +1,40 @@
 """
-Prompt version management for security-focused LLM responses
+Prompt Version Management for Security-Focused LLM Responses
+
+This module manages different versions of security expert system prompts,
+enabling A/B testing, regression testing, and continuous improvement.
+
+Version History:
+- v1: Basic security assistant (minimal guidance)
+- v2: Enhanced with specific focus areas (OWASP Top 10)
+- v3: Current production version (comprehensive with best practices)
+- v4: Experimental version (detailed with code examples)
+
+Each version represents an evolution in:
+- Scope of security topics covered
+- Detail level in responses
+- Inclusion of standards and examples
+- Specificity of guidance
+
+The PromptVersionManager class provides:
+- Version retrieval by name
+- Default version management
+- Version listing for testing
+- Centralized prompt configuration
+
+Usage:
+    from src.prompt_versions import PromptVersionManager
+    
+    # Get current production prompt
+    prompt = PromptVersionManager.get_prompt()  # Returns v3
+    
+    # Get specific version for testing
+    prompt_v4 = PromptVersionManager.get_prompt("v4")
+    
+    # List all available versions
+    versions = PromptVersionManager.list_versions()
+
+This enables systematic testing of prompt improvements and prevents regressions.
 """
 
 # Version 1: Basic security assistant

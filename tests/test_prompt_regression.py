@@ -1,16 +1,46 @@
 """
-Test prompt version regression and consistency
+Test Prompt Version Regression and Consistency
+
+This module ensures that prompt updates don't degrade performance on critical
+security topics. It compares different prompt versions to validate improvements
+and prevent regressions.
+
+Prompt Versions Tested:
+- v1: Basic security assistant
+- v2: Enhanced with specific focus areas
+- v3: Current production version (comprehensive guidance)
+- v4: Experimental version with detailed examples
+
+Testing Strategy:
+1. Baseline performance measurement (v3)
+2. Version comparison (v3 vs v4)
+3. Consistency checks across versions
+4. Detailed advice evaluation
+5. Code example quality assessment
+6. Critical topic regression testing
+
+Key Security Topics:
+- Password storage and hashing
+- SQL injection prevention
+- JWT authentication implementation
+- XSS attack mitigation
+- API key management
+- REST API security
+
+Metrics used:
+- AnswerRelevancyMetric: Validates response relevance
+- GEval: Custom criteria-based evaluation for comprehensiveness and code quality
 """
 import pytest
-from typing import List
+from typing import TYPE_CHECKING
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
-from openai.types.chat import ChatCompletionMessageParam
 from src.prompt_versions import PromptVersionManager
-from src.llm_client import SecurityLLMClient
 
+if TYPE_CHECKING:
+    from src.llm_client import SecurityLLMClient
 
 # Helper function for generating responses with specific prompt versions
 def generate_response_with_version(client: SecurityLLMClient, query: str, version: str) -> str:
