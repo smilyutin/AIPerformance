@@ -14,7 +14,9 @@ jobs:
     timeout-minutes: 90  # Increased timeout for slow CI runners
     
     strategy:
-      fail-fast: true  # Stop all jobs on first failure to save CI minutes
+      # When true, GitHub cancels remaining matrix jobs as soon as one job fails.
+      # Set to false so all matrix jobs run to completion even if one fails.
+      fail-fast: false
       matrix:
         test-suite: 
           - tests/test_accuracy.py
