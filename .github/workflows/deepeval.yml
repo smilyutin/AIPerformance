@@ -6,7 +6,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  # Cancel redundant runs
+  cancel-in-progress: false  # Cancel redundant runs
 
 jobs:
   deepeval-tests:
