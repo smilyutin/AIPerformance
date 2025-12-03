@@ -24,7 +24,13 @@ import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric, ContextualRelevancyMetric
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
+
+
+@pytest.fixture(scope="module")
+def llm_client():
+    """Initialize Ollama LLM client"""
+    return OllamaSecurityClient(model="llama3")
 
 
 @pytest.fixture(scope="module")

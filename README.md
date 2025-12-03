@@ -11,6 +11,7 @@ This project provides a complete testing suite for validating LLM-generated secu
 - **Hallucination Detection**: Preventing fabricated or misleading security advice
 - **RAG Evaluation**: Testing retrieval-augmented generation quality
 - **Prompt Regression**: Comparing prompt versions and preventing regressions
+- **Cost-Free Testing**: Uses Ollama for local LLM inference (zero API costs)
 
 ## 📁 Project Structure
 
@@ -69,8 +70,6 @@ startDeepEval/
    # OPENAI_API_KEY=your_api_key_here
    ```
 
-### Running Tests
-
 Run all tests:
 ```bash
 pytest
@@ -99,6 +98,16 @@ pytest -m security
 # Run everything except slow tests
 pytest -m "not slow"
 ```
+
+### Troubleshooting
+
+**Error: "Ollama server not running"**
+- Start Ollama: `ollama serve` in a separate terminal
+- Verify it's running: `curl http://localhost:11434/api/tags`
+
+**Error: "Model not found"**
+- Pull the model: `ollama pull llama3`
+- List available models: `ollama list`
 
 ## 📊 Test Metrics
 
@@ -140,6 +149,8 @@ OPENAI_MODEL=gpt-4o-mini
 DEEPEVAL_TELEMETRY_OPT_OUT=true  # Optional
 CONFIDENCE_THRESHOLD=0.7         # Optional: default threshold
 ```
+
+**Note**: With Ollama, you don't need an OpenAI API key! The tests run entirely locally with zero API costs.
 
 ## 📝 Writing Tests
 
@@ -184,6 +195,8 @@ def test_rag_retrieval(rag_client):
 
 The project includes a GitHub Actions workflow (`.github/workflows/deepeval.yml`) that:
 
+- Automatically installs and configures Ollama
+- Pulls the llama3 model
 - Runs on push to main/develop branches
 - Runs on pull requests
 - Executes weekly on Sunday (for regression detection)
@@ -212,6 +225,16 @@ git push origin dev
 3. **Prompt Engineering**: Test and compare different prompt versions
 4. **Compliance**: Verify responses align with security standards (OWASP, NIST)
 5. **Regression Testing**: Catch quality degradation in model updates
+6. **Cost-Free Development**: Develop and test LLM applications without API costs
+7. **Privacy-First Testing**: Keep sensitive security data local with Ollama
+
+## 🌟 Why Ollama?
+
+- **Zero Cost**: No API fees, unlimited testing
+- **Privacy**: All data stays on your machine
+- **Speed**: Local inference with GPU support
+- **Offline**: Works without internet connection
+- **Flexible**: Support for multiple models (llama3, mistral, codellama, etc.)
 
 ## 📚 Additional Resources
 

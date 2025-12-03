@@ -37,7 +37,7 @@ from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
 from src.prompt_versions import PromptVersionManager
-from src.llm_client import SecurityLLMClient
+from src.llm_client_ollama import OllamaSecurityClient
 
 
 # Helper function for generating responses with specific prompt versions

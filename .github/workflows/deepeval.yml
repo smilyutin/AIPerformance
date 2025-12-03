@@ -7,9 +7,23 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true  # Cancel redundant runs
+
 jobs:
   deepeval-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 90  # Increased timeout for slow CI runners
+    
+    strategy:
+      fail-fast: true  # Stop all jobs on first failure to save CI minutes
+      matrix:
+        test-suite: 
+          - tests/test_accuracy.py
+          - tests/test_hallucination.py
+          - tests/test_rag.py
+          - tests/test_prompt_regression.py
     
     steps:
     - uses: actions/checkout@v4
@@ -25,7 +39,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Run DeepEval Tests
+    - name: Run DeepEval Tests - ${{ matrix.test-suite }}
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
