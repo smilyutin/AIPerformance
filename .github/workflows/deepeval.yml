@@ -57,8 +57,8 @@ jobs:
         
     - name: Pull and optimize Llama3 model
       run: |
-        # Pull smaller quantized model for faster inference in CI
-        ollama pull llama3:8b-instruct-q4_0 || ollama pull llama3
+        # Pull standard llama3 model (quantized versions may not work reliably)
+        ollama pull llama3
         
     - name: Verify model is available
       run: |
