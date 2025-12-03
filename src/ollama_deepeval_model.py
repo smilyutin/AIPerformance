@@ -55,11 +55,17 @@ class OllamaModel(DeepEvalBaseLLM):
         Returns:
             Generated text or structured object
         """
+        import os
+        
         # Determine format parameter for Ollama
         format_param = None
         if schema:
             # If schema is provided, use JSON format for structured output
             format_param = "json"
+        
+        # Detect CI environment and use faster settings
+        is_ci = os.getenv('CI', 'false').lower() == 'true'
+        num_predict = 1000 if is_ci else 2000  # Reduce tokens in CI for speed
         
         response = ollama.chat(
             model=self.model_name,
@@ -69,8 +75,8 @@ class OllamaModel(DeepEvalBaseLLM):
             format=format_param,
             options={
                 "temperature": 0.0,  # Deterministic for eval
-                "num_predict": 2000,  # Increased for better responses
-                "num_ctx": 4096,      # Larger context window
+                "num_predict": num_predict,
+                "num_ctx": 2048 if is_ci else 4096,  # Smaller context in CI
             }
         )
         

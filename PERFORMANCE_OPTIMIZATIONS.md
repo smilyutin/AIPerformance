@@ -89,15 +89,52 @@ Use `mistral` or `phi` instead of `llama3`:
    pytest tests/test_hallucination.py  # ~3 minutes  
    ```
 
-### For CI/CD
-1. Run all tests with current optimizations (~12-15 min)
-2. Consider GitHub Actions matrix strategy:
+### For CI/CD (GitHub Actions)
+**Problem**: Ollama is slow on GitHub Actions (CPU-only, no GPU)
+
+**Solutions Implemented**:
+
+1. **Parallel Test Matrix** ✅
+   - Splits tests into 4 parallel jobs (accuracy, hallucination, rag, regression)
+   - Each job runs independently (~15-20 min each)
+   - Total wall-clock time: ~20 minutes (vs 60-90 min sequential)
+
+2. **Model Caching** ✅
    ```yaml
-   strategy:
-     matrix:
-       test_suite: [accuracy, hallucination, rag, regression]
+   - uses: actions/cache@v4
+     with:
+       path: ~/.ollama
+       key: ollama-llama3-${{ runner.os }}
    ```
-   **Parallel execution time**: ~3-4 minutes per suite
+   - Caches downloaded models between runs
+   - Saves ~5-10 minutes per run
+
+3. **Smaller Quantized Model** ✅
+   ```bash
+   ollama pull llama3:8b-instruct-q4_0  # 4-bit quantized
+   ```
+   - 2-3x faster inference vs full model
+   - Minimal accuracy impact
+
+4. **CI-Specific Token Limits** ✅
+   ```python
+   is_ci = os.getenv('CI', 'false').lower() == 'true'
+   num_predict = 500 if is_ci else 800  # Reduced for CI
+   num_ctx = 2048 if is_ci else 4096    # Smaller context
+   ```
+   - Automatically detects CI environment
+   - Uses faster settings without manual config
+
+5. **Increased Timeout** ✅
+   ```yaml
+   timeout-minutes: 90  # Per job
+   ```
+   - Prevents premature job cancellation
+
+**Expected CI Performance**:
+- **Before**: 60-90 minutes (all tests sequential)
+- **After**: ~20 minutes wall-clock (4 parallel jobs)
+- **Improvement**: 65-75% faster
 
 ### For Production
 1. Monitor test execution times

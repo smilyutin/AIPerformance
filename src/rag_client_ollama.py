@@ -90,6 +90,8 @@ class OllamaSecurityRAGClient:
     
     def generate_rag_response(self, query: str, retrieval_context: Optional[List[str]] = None) -> dict:
         """Generate response using Ollama with retrieved context"""
+        import os
+        
         if retrieval_context is None:
             retrieval_context = self.retrieve_context(query)
         
@@ -106,6 +108,10 @@ Question: {query}
 
 Provide a clear, accurate answer based on the context above."""
         
+        # Detect CI environment for faster settings
+        is_ci = os.getenv('CI', 'false').lower() == 'true'
+        num_predict = 500 if is_ci else 800
+        
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -114,7 +120,7 @@ Provide a clear, accurate answer based on the context above."""
             ],
             options={
                 "temperature": 0.3,
-                "num_predict": 800,  # Optimized for faster responses
+                "num_predict": num_predict,
                 "num_ctx": 2048,
             }
         )

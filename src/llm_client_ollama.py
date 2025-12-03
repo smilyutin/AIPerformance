@@ -52,6 +52,8 @@ class OllamaSecurityClient:
         Returns:
             Generated response
         """
+        import os
+        
         system_prompt = """You are a security expert assistant. Provide accurate, 
         concise answers about API security, authentication, authorization, and 
         common vulnerabilities. Focus on practical, actionable advice."""
@@ -61,6 +63,10 @@ class OllamaSecurityClient:
         else:
             user_message = query
         
+        # Detect CI environment for faster settings
+        is_ci = os.getenv('CI', 'false').lower() == 'true'
+        num_predict = 500 if is_ci else 800  # Reduced for CI speed
+        
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -69,7 +75,7 @@ class OllamaSecurityClient:
             ],
             options={
                 "temperature": 0.3,
-                "num_predict": 800,  # Optimized for faster responses
+                "num_predict": num_predict,
                 "num_ctx": 2048,
             }
         )
