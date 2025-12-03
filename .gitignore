@@ -48,7 +48,8 @@ htmlcov/
 *.cover
 
 # DeepEval
-deepeval_results/
+deepeval_results/*
+!deepeval_results/.gitkeep
 .deepeval/
 
 # Logs

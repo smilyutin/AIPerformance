@@ -1,6 +1,6 @@
 # DeepEval Security Testing Starter
 
-A comprehensive testing framework for evaluating LLM responses on API security topics using DeepEval.
+A comprehensive testing framework for evaluating LLM responses on API security topics using DeepEval and **Ollama** (local LLM).
 
 ## 🔐 Overview
 
@@ -11,28 +11,37 @@ This project provides a complete testing suite for validating LLM-generated secu
 - **Hallucination Detection**: Preventing fabricated or misleading security advice
 - **RAG Evaluation**: Testing retrieval-augmented generation quality
 - **Prompt Regression**: Comparing prompt versions and preventing regressions
+- **Cost-Free Testing**: Uses Ollama for local LLM inference (zero API costs)
 
 ## 📁 Project Structure
 
 ```
-deepeval-starter/
+startDeepEval/
 ├── .github/
 │   └── workflows/
-│       └── deepeval.yml          # CI/CD pipeline for automated testing
+│       └── deepeval.yml          # CI/CD pipeline with Ollama
 ├── datasets/
 │   ├── golden_dataset.json       # Golden test cases for accuracy
 │   └── rag_dataset.json          # RAG test cases with retrieval context
 ├── src/
-│   ├── llm_client.py             # LLM client for security responses
+│   ├── __init__.py
+│   ├── llm_client_ollama.py      # Ollama client for security responses
+│   ├── rag_client_ollama.py      # Ollama RAG client with knowledge base
+│   ├── ollama_deepeval_model.py  # Ollama model wrapper for DeepEval
 │   ├── prompt_versions.py        # Prompt version management
-│   └── rag_client.py             # RAG client with knowledge base
+│   ├── llm_client.py             # (Legacy) OpenAI client
+│   └── rag_client.py             # (Legacy) OpenAI RAG client
 ├── tests/
+│   ├── __init__.py
+│   ├── conftest.py               # Pytest fixtures with Ollama config
 │   ├── test_accuracy.py          # Accuracy and relevancy tests
 │   ├── test_hallucination.py     # Hallucination detection tests
 │   ├── test_rag.py               # RAG retrieval and generation tests
 │   └── test_prompt_regression.py # Prompt version regression tests
+├── deepeval_results/             # Test results output directory
 ├── .env.example                  # Environment variables template
 ├── requirements.txt              # Python dependencies
+├── pyproject.toml                # Project configuration
 ├── pytest.ini                    # Pytest configuration
 └── README.md                     # This file
 ```
@@ -41,29 +50,58 @@ deepeval-starter/
 
 ### Prerequisites
 
-- Python 3.10+
-- OpenAI API key
+- Python 3.9+
+- **Ollama** (for local LLM inference)
+- (Optional) OpenAI API key (if using legacy OpenAI clients)
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd deepeval-starter
-```
+1. **Install Ollama**:
+   
+   Visit [https://ollama.com/download](https://ollama.com/download) and install Ollama for your OS.
+   
+   Or use the command line:
+   ```bash
+   # macOS/Linux
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. **Pull the Llama3 model**:
+   ```bash
+   ollama pull llama3
+   ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
-```
+3. **Start Ollama server**:
+   ```bash
+   ollama serve
+   ```
+   
+   Leave this running in a separate terminal. Ollama will run on `http://localhost:11434`.
+
+4. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd deepeval-starter
+   ```
+
+5. **Install Python dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+6. **(Optional) Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env if you want to configure custom settings
+   ```
 
 ### Running Tests
+
+**Important**: Make sure Ollama is running before executing tests:
+```bash
+# In a separate terminal, start Ollama
+ollama serve
+```
 
 Run all tests:
 ```bash
@@ -93,6 +131,16 @@ pytest -m security
 # Run everything except slow tests
 pytest -m "not slow"
 ```
+
+### Troubleshooting
+
+**Error: "Ollama server not running"**
+- Start Ollama: `ollama serve` in a separate terminal
+- Verify it's running: `curl http://localhost:11434/api/tags`
+
+**Error: "Model not found"**
+- Pull the model: `ollama pull llama3`
+- List available models: `ollama list`
 
 ## 📊 Test Metrics
 
@@ -126,11 +174,16 @@ pytest -m "not slow"
 ### Environment Variables (`.env`)
 
 ```bash
+# Optional: Only needed if using legacy OpenAI clients
 OPENAI_API_KEY=your_key_here
-OPENAI_MODEL=gpt-4o-mini  # Optional: default model
+OPENAI_MODEL=gpt-4o-mini
+
+# DeepEval configuration
 DEEPEVAL_TELEMETRY_OPT_OUT=true  # Optional
-CONFIDENCE_THRESHOLD=0.7  # Optional: default threshold
+CONFIDENCE_THRESHOLD=0.7         # Optional: default threshold
 ```
+
+**Note**: With Ollama, you don't need an OpenAI API key! The tests run entirely locally with zero API costs.
 
 ## 📝 Writing Tests
 
@@ -175,23 +228,27 @@ def test_rag_retrieval(rag_client):
 
 The project includes a GitHub Actions workflow (`.github/workflows/deepeval.yml`) that:
 
+- Automatically installs and configures Ollama
+- Pulls the llama3 model
 - Runs on push to main/develop branches
 - Runs on pull requests
 - Executes weekly on Sunday (for regression detection)
-- Uploads test results as artifacts
+- **Zero API costs** - uses local Ollama for all evaluations
 
 ### Setting Up GitHub Actions
 
-To enable automated testing in GitHub Actions:
+The workflow is pre-configured to work with Ollama. No API keys needed! Just push to trigger automated testing:
 
-1. Go to your repository **Settings** → **Secrets and variables** → **Actions**
-2. Click **"New repository secret"**
-3. Add secret:
-   - **Name**: `OPENAI_API_KEY`
-   - **Value**: Your OpenAI API key
-4. Save the secret
+```bash
+git push origin dev
+```
 
-The workflow will automatically use this secret to run tests on every push and pull request.
+The workflow will:
+1. Install Ollama on the GitHub Actions runner
+2. Start the Ollama service
+3. Pull the llama3 model
+4. Run all 26 tests using local inference
+5. Report results
 
 ## 🎯 Use Cases
 
@@ -200,11 +257,22 @@ The workflow will automatically use this secret to run tests on every push and p
 3. **Prompt Engineering**: Test and compare different prompt versions
 4. **Compliance**: Verify responses align with security standards (OWASP, NIST)
 5. **Regression Testing**: Catch quality degradation in model updates
+6. **Cost-Free Development**: Develop and test LLM applications without API costs
+7. **Privacy-First Testing**: Keep sensitive security data local with Ollama
+
+## 🌟 Why Ollama?
+
+- **Zero Cost**: No API fees, unlimited testing
+- **Privacy**: All data stays on your machine
+- **Speed**: Local inference with GPU support
+- **Offline**: Works without internet connection
+- **Flexible**: Support for multiple models (llama3, mistral, codellama, etc.)
 
 ## 📚 Additional Resources
 
 - [DeepEval Documentation](https://docs.confident-ai.com/)
-- [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
+- [Ollama Documentation](https://ollama.com/)
+- [Ollama Model Library](https://ollama.com/library)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 
 ## 🤝 Contributing
@@ -221,4 +289,7 @@ MIT License - feel free to use this starter template for your projects.
 
 ## 🔒 Security Note
 
-Never commit your `.env` file or expose your API keys. Always use environment variables for sensitive configuration.
+- No API keys required when using Ollama
+- All LLM processing happens locally
+- Test data never leaves your machine
+- Perfect for testing sensitive security scenarios

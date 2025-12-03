@@ -1,5 +1,33 @@
 """
-LLM Client for security-focused responses
+LLM Client for Security-Focused Responses
+
+This module provides a specialized LLM client for generating security-related
+responses with a focus on API security, authentication, and common vulnerabilities.
+
+Key Features:
+- Security-focused system prompts
+- Configurable temperature for consistent advice
+- Context-aware response generation
+- Sensitive data exposure detection
+- Security advice validation
+
+The client is optimized for:
+- Providing accurate security guidance
+- Following industry best practices (OWASP, NIST)
+- Maintaining consistent, actionable advice
+- Avoiding misleading or insecure recommendations
+
+Usage:
+    client = SecurityLLMClient(api_key="your-key", model="gpt-4o-mini")
+    response = client.generate_security_response(
+        query="How do I prevent SQL injection?",
+        context="Use parameterized queries..."
+    )
+
+Configuration:
+- Default model: gpt-4o-mini
+- Temperature: 0.3 (for consistency)
+- Max tokens: 500 per response
 """
 import os
 from typing import Optional, List, Dict, Any

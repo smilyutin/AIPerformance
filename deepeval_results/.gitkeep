@@ -1,0 +1,2 @@
+# This directory stores DeepEval test results
+# Results are generated during test execution and uploaded as GitHub Actions artifacts
