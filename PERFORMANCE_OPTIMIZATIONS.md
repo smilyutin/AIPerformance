@@ -8,7 +8,7 @@ Optimized test execution performance while maintaining 100% test pass rate (26/2
 
 ### 1. **Increased Token Limits** ⚡
 Reduced truncation and improved response quality:
-- **OllamaModel (DeepEval metrics)**: 1000 → 2000 tokens (`num_predict`)
+- **OpenAI model (DeepEval metrics)**: 1000 → 2000 tokens (`num_predict`)
 - **LLM Client**: 500 → 800 tokens
 - **RAG Client**: 500 → 800 tokens  
 - **Context Window**: Added `num_ctx: 2048-4096` for better context handling
@@ -20,18 +20,18 @@ Added reusable client instances across tests:
 ```python
 @pytest.fixture(scope="session")
 def shared_llm_client():
-    """Shared Ollama LLM client"""
+   """Shared OpenAI LLM client"""
     
 @pytest.fixture(scope="session")  
 def shared_rag_client():
-    """Shared Ollama RAG client"""
+   """Shared OpenAI RAG client"""
 ```
 
 **Impact**: Client initialization happens once per test session instead of per test
 
-### 3. **Optimized Ollama Parameters** ��
+### 3. **Optimized OpenAI Parameters**
 - `temperature: 0.0-0.3` for deterministic evaluation
-- `num_ctx: 2048-4096` larger context windows
+- `num_ctx: 2048-4096` larger context windows (where supported)
 - Removed unnecessary options to reduce overhead
 
 **Impact**: Faster inference with optimized model parameters
@@ -90,7 +90,7 @@ Use `mistral` or `phi` instead of `llama3`:
    ```
 
 ### For CI/CD (GitHub Actions)
-**Problem**: Ollama is slow on GitHub Actions (CPU-only, no GPU)
+**Problem**: Running large local models on GitHub Actions (CPU-only, no GPU) can be slow; this project uses OpenAI for CI runs by default.
 
 **Solutions Implemented**:
 
@@ -99,22 +99,11 @@ Use `mistral` or `phi` instead of `llama3`:
    - Each job runs independently (~15-20 min each)
    - Total wall-clock time: ~20 minutes (vs 60-90 min sequential)
 
-2. **Model Caching** ✅
-   ```yaml
-   - uses: actions/cache@v4
-     with:
-       path: ~/.ollama
-       key: ollama-llama3-${{ runner.os }}
-   ```
-   - Caches downloaded models between runs
-   - Saves ~5-10 minutes per run
+2. **Model / Artifact Caching** ✅
+   - For OpenAI-based CI runs, caching downloaded local models isn't applicable. Instead, cache large artifacts or precomputed test assets to reduce setup time.
 
-3. **Smaller Quantized Model** ✅
-   ```bash
-   ollama pull llama3:8b-instruct-q4_0  # 4-bit quantized
-   ```
-   - 2-3x faster inference vs full model
-   - Minimal accuracy impact
+3. **Smaller/Faster Models** ✅
+   - Prefer smaller OpenAI models (or lower-cost inference tiers) for CI where latency matters. Adjust token limits and model selection to balance speed vs. quality.
 
 4. **CI-Specific Token Limits** ✅
    ```python
@@ -139,7 +128,7 @@ Use `mistral` or `phi` instead of `llama3`:
 ### For Production
 1. Monitor test execution times
 2. Set timeout limits (recommended: 20 minutes)
-3. Cache Ollama model between runs
+3. Cache large artifacts between runs
 
 ## Performance Metrics to Track
 
@@ -151,7 +140,7 @@ Use `mistral` or `phi` instead of `llama3`:
 
 ## Notes
 
-- **GPU Acceleration**: If Ollama has GPU access, tests run 3-5x faster
+- **GPU Acceleration**: If you have access to GPU-backed local inference, tests can run significantly faster
 - **Model Loading**: First run is slower due to model loading (~10-30s overhead)
 - **Network**: Local inference eliminates API latency completely
 

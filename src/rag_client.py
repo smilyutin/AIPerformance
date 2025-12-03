@@ -44,7 +44,7 @@ Usage:
     score = rag_client.evaluate_context_relevance(query, context)
 """
 import os
-from typing import List, Optional
+from typing import List, Optional, cast
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -181,7 +181,7 @@ Provide a clear, accurate answer based on the context above."""
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.3,
             max_tokens=500
         )
@@ -213,7 +213,7 @@ Provide a clear, accurate answer based on the context above."""
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.1,
             max_tokens=10
         )

@@ -31,6 +31,7 @@ Metrics used:
 - AnswerRelevancyMetric: Validates response relevance
 - GEval: Custom criteria-based evaluation for comprehensiveness and code quality
 """
+from __future__ import annotations
 import pytest
 from typing import TYPE_CHECKING
 from deepeval import assert_test
@@ -42,13 +43,14 @@ from src.prompt_versions import PromptVersionManager
 if TYPE_CHECKING:
     from src.llm_client import SecurityLLMClient
 
-
 # Helper function for generating responses with specific prompt versions
-def generate_response_with_version(client: "SecurityLLMClient", query: str, version: str) -> str:
+def generate_response_with_version(client, query: str, version: str) -> str:
     """Generate response using specific prompt version"""
     prompt = PromptVersionManager.get_prompt(version)
-    return client.get_security_advice(query, system_prompt=prompt)
 
+    # Use the SecurityLLMClient helper to construct messages and call OpenAI.
+    # This avoids constructing raw message dicts in tests (fixes Pylance typing).
+    return client.get_security_advice(query=query, system_prompt=prompt)
 
 def test_v3_baseline_performance(llm_client):
     """Test baseline performance of v3 (production) prompt"""
@@ -83,8 +85,7 @@ def test_v4_vs_v3_comparison(llm_client):
         actual_output=v4_response
     )
     
-    # Lower threshold to 0.65 to account for detailed but sometimes verbose responses
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.65)
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     
     # Both versions should meet threshold
     assert_test(test_case_v3, [relevancy_metric])
@@ -135,7 +136,7 @@ def test_v3_detailed_security_advice(llm_client):
 
 def test_v4_code_examples_quality(llm_client):
     """Test v4 prompt provides quality code examples when appropriate"""
-    query = "Provide working Python code to implement rate limiting for an API endpoint"
+    query = "Show me how to implement rate limiting in Python"
     response = generate_response_with_version(llm_client, query, "v4")
     
     test_case = LLMTestCase(
@@ -148,7 +149,7 @@ def test_v4_code_examples_quality(llm_client):
         name="Code Quality",
         criteria="Evaluate if the response includes practical, secure code examples when requested. Code should follow best practices and be production-ready.",
         evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
-        threshold=0.5
+        threshold=0.6
     )
     
     assert_test(test_case, [code_quality_metric])

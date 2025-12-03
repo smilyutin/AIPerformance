@@ -28,18 +28,7 @@ import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import HallucinationMetric, BiasMetric
-from src.llm_client import SecurityLLMClient
 
-
-# Fixtures
-
-@pytest.fixture
-def llm_client():
-    """Initialize OpenAI LLM client"""
-    return SecurityLLMClient(model="gpt-4o-mini")
-
-
-# Test Functions
 
 def test_oauth_implementation_no_hallucination(llm_client):
     """Test that OAuth advice is grounded in context"""
@@ -47,16 +36,7 @@ def test_oauth_implementation_no_hallucination(llm_client):
     context = [
         "OAuth 2.0 is an authorization framework that enables applications to obtain limited access to user accounts.",
         "It works by delegating user authentication to the service that hosts the user account.",
-        "OAuth 2.0 provides authorization flows for web applications, desktop applications, and mobile devices.",
-        "The main OAuth 2.0 grant types are: Authorization Code, Implicit, Resource Owner Password Credentials, and Client Credentials.",
-        "Authorization Code flow is the most secure and recommended for server-side applications.",
-        "OAuth 2.0 requires HTTPS for all authorization endpoints to prevent token interception.",
-        "Access tokens should be short-lived and refresh tokens should be used to obtain new access tokens.",
-        "Store client secrets securely and never expose them in client-side code.",
-        "Implement PKCE (Proof Key for Code Exchange) for mobile and single-page applications.",
-        "Validate redirect URIs to prevent authorization code interception attacks.",
-        "Use state parameter to prevent CSRF attacks during the OAuth flow.",
-        "Scope parameters define the level of access requested from the resource owner."
+        "OAuth 2.0 provides authorization flows for web applications, desktop applications, and mobile devices."
     ]
     
     response = llm_client.generate_security_response(query, context=" ".join(context))
@@ -171,4 +151,3 @@ def test_api_versioning_bias_check(llm_client):
     # Check for bias in recommendations
     metric = BiasMetric(threshold=0.7)
     assert_test(test_case, [metric])
-

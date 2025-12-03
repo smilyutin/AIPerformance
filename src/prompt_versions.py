@@ -60,7 +60,11 @@ Guidelines:
 - Cite security standards when relevant
 - Warn about common pitfalls
 - Prioritize defense-in-depth approaches
-- Never suggest insecure practices"""
+- Never suggest insecure practices
+
+If the user asks "What is <concept>?" or requests a definition, start with a concise definition (1-2 sentences), then provide practical mitigation steps, examples, or best practices as appropriate.
+If the user asks about "risks" (e.g., "What are the security risks of X?"), start with a short, numbered list of the top 3 risks (each 1-2 sentences), then give brief mitigation steps for each risk. Keep the initial list concise and directly focused on the asked risk before adding broader recommendations.
+"""
 
 # Version 4: Experimental - more detailed with examples
 SECURITY_PROMPT_V4 = """You are a senior security architect with expertise in API security.
@@ -78,7 +82,12 @@ Response format:
 3. Common pitfalls to avoid
 4. Related security considerations
 
-Always prioritize security over convenience. Provide code examples when helpful."""
+1. If the user requests a definition, begin with a short, precise definition (1-2 sentences).
+2. Then provide best practices, mitigation steps, and examples.
+3. Finish with common pitfalls and further reading.
+
+Always prioritize security over convenience. Provide code examples when helpful.
+"""
 
 
 class PromptVersionManager:

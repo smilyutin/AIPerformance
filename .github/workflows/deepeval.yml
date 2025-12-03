@@ -1,15 +1,12 @@
 name: DeepEval CI
 on:
-  push:
-    branches: [ main, develop, dev ]
+  
   pull_request:
-    branches: [ main, develop, dev ]
-  schedule:
-    - cron: '0 0 * * 0'  # Weekly on Sunday
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  # Cancel redundant runs
+  cancel-in-progress: false  # Cancel redundant runs
 
 jobs:
   deepeval-tests:

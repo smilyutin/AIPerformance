@@ -38,12 +38,6 @@ from deepeval.metrics import (
 from src.rag_client import SecurityRAGClient
 
 
-@pytest.fixture
-def rag_client():
-    """Initialize RAG client"""
-    return SecurityRAGClient()
-
-
 def test_sql_injection_rag_retrieval(rag_client):
     """Test RAG retrieval and generation for SQL injection"""
     query = "How do I prevent SQL injection attacks?"
@@ -135,9 +129,11 @@ def test_least_privilege_with_custom_context(rag_client):
     )
     
     precision = ContextualPrecisionMetric(threshold=0.6)
-    recall = ContextualRecallMetric(threshold=0.5)
+    recall = ContextualRecallMetric(threshold=0.6)
+    faithfulness = FaithfulnessMetric(threshold=0.7)
     
-    assert_test(test_case, [precision, recall])
+    assert_test(test_case, [precision, recall, faithfulness])
+
 
 def test_context_relevance_evaluation(rag_client):
     """Test the context relevance evaluation function"""
@@ -146,8 +142,8 @@ def test_context_relevance_evaluation(rag_client):
     
     relevance_score = rag_client.evaluate_context_relevance(query, context)
     
-    # Assert that relevance score is reasonable (>= 0.5 for relevant context)
-    assert relevance_score >= 0.5, f"Expected relevance >= 0.5, got {relevance_score}"
+    # Assert that relevance score is reasonable (> 0.5 for relevant context)
+    assert relevance_score > 0.5, f"Expected relevance > 0.5, got {relevance_score}"
 
 
 def test_irrelevant_context_detection(rag_client):
@@ -157,5 +153,5 @@ def test_irrelevant_context_detection(rag_client):
     
     relevance_score = rag_client.evaluate_context_relevance(query, irrelevant_context)
     
-    # Assert that relevance score is low for irrelevant context (<=0.5 accepts boundary)
-    assert relevance_score <= 0.5, f"Expected relevance <= 0.5, got {relevance_score}"
+    # Assert that relevance score is low for irrelevant context
+    assert relevance_score < 0.5, f"Expected relevance < 0.5, got {relevance_score}"
