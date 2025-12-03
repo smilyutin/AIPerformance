@@ -32,16 +32,19 @@ Metrics used:
 - GEval: Custom criteria-based evaluation for comprehensiveness and code quality
 """
 import pytest
+from typing import TYPE_CHECKING
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
 from src.prompt_versions import PromptVersionManager
-from src.llm_client_ollama import OllamaSecurityClient
+
+if TYPE_CHECKING:
+    from src.llm_client import SecurityLLMClient
 
 
 # Helper function for generating responses with specific prompt versions
-def generate_response_with_version(client: SecurityLLMClient, query: str, version: str) -> str:
+def generate_response_with_version(client: "SecurityLLMClient", query: str, version: str) -> str:
     """Generate response using specific prompt version"""
     prompt = PromptVersionManager.get_prompt(version)
     return client.get_security_advice(query, system_prompt=prompt)
