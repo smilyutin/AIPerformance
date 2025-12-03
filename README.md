@@ -11,7 +11,36 @@ This project provides a complete testing suite for validating LLM-generated secu
 - **Hallucination Detection**: Preventing fabricated or misleading security advice
 - **RAG Evaluation**: Testing retrieval-augmented generation quality
 - **Prompt Regression**: Comparing prompt versions and preventing regressions
-- **Cost-Free Testing**: Uses Ollama for local LLM inference (zero API costs)
+- **Inference Provider**: Uses OpenAI for LLM inference
+
+## 📁 Project Structure
+
+```
+startDeepEval/
+├── .github/
+│   └── workflows/
+│       └── deepeval.yml          # CI/CD pipeline
+├── datasets/
+│   ├── golden_dataset.json       # Golden test cases for accuracy
+│   └── rag_dataset.json          # RAG test cases with retrieval context
+├── src/
+│   ├── __init__.py
+│   ├── llm_client.py             # OpenAI client for security responses
+│   ├── rag_client.py             # OpenAI RAG client with knowledge base
+````markdown
+# DeepEval Security Testing Starter
+
+A comprehensive testing framework for evaluating LLM responses on API security topics using DeepEval and OpenAI.
+
+## 🔐 Overview
+
+This project provides a complete testing suite for validating LLM-generated security advice and responses. It focuses on:
+
+- **API Security**: Authentication, authorization, and common vulnerabilities
+- **Accuracy Testing**: Ensuring responses are relevant and factually correct
+- **Hallucination Detection**: Preventing fabricated or misleading security advice
+- **RAG Evaluation**: Testing retrieval-augmented generation quality
+- **Prompt Regression**: Comparing prompt versions and preventing regressions
 
 ## 📁 Project Structure
 
@@ -99,16 +128,6 @@ pytest -m security
 pytest -m "not slow"
 ```
 
-### Troubleshooting
-
-**Error: "Ollama server not running"**
-- Start Ollama: `ollama serve` in a separate terminal
-- Verify it's running: `curl http://localhost:11434/api/tags`
-
-**Error: "Model not found"**
-- Pull the model: `ollama pull llama3`
-- List available models: `ollama list`
-
 ## 📊 Test Metrics
 
 ### Accuracy Tests
@@ -149,8 +168,6 @@ OPENAI_MODEL=gpt-4o-mini
 DEEPEVAL_TELEMETRY_OPT_OUT=true  # Optional
 CONFIDENCE_THRESHOLD=0.7         # Optional: default threshold
 ```
-
-**Note**: With Ollama, you don't need an OpenAI API key! The tests run entirely locally with zero API costs.
 
 ## 📝 Writing Tests
 
@@ -195,8 +212,6 @@ def test_rag_retrieval(rag_client):
 
 The project includes a GitHub Actions workflow (`.github/workflows/deepeval.yml`) that:
 
-- Automatically installs and configures Ollama
-- Pulls the llama3 model
 - Runs on push to main/develop branches
 - Runs on pull requests
 - Executes weekly on Sunday (for regression detection)
@@ -225,16 +240,7 @@ git push origin dev
 3. **Prompt Engineering**: Test and compare different prompt versions
 4. **Compliance**: Verify responses align with security standards (OWASP, NIST)
 5. **Regression Testing**: Catch quality degradation in model updates
-6. **Cost-Free Development**: Develop and test LLM applications without API costs
-7. **Privacy-First Testing**: Keep sensitive security data local with Ollama
-
-## 🌟 Why Ollama?
-
-- **Zero Cost**: No API fees, unlimited testing
-- **Privacy**: All data stays on your machine
-- **Speed**: Local inference with GPU support
-- **Offline**: Works without internet connection
-- **Flexible**: Support for multiple models (llama3, mistral, codellama, etc.)
+6. **Privacy-Conscious Testing**: Run tests using OpenAI with appropriate handling of sensitive data
 
 ## 📚 Additional Resources
 
@@ -253,3 +259,5 @@ git push origin dev
 ## 📄 License
 
 MIT License - feel free to use this starter template for your projects.
+
+````

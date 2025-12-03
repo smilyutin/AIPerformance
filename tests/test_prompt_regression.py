@@ -31,6 +31,7 @@ Metrics used:
 - AnswerRelevancyMetric: Validates response relevance
 - GEval: Custom criteria-based evaluation for comprehensiveness and code quality
 """
+from __future__ import annotations
 import pytest
 from typing import TYPE_CHECKING
 from deepeval import assert_test
@@ -43,23 +44,13 @@ if TYPE_CHECKING:
     from src.llm_client import SecurityLLMClient
 
 # Helper function for generating responses with specific prompt versions
-def generate_response_with_version(client: SecurityLLMClient, query: str, version: str) -> str:
+def generate_response_with_version(client, query: str, version: str) -> str:
     """Generate response using specific prompt version"""
     prompt = PromptVersionManager.get_prompt(version)
-    
-    messages: List[ChatCompletionMessageParam] = [
-        {"role": "system", "content": prompt},
-        {"role": "user", "content": query}
-    ]
-    
-    response = client.client.chat.completions.create(
-        model=client.model,
-        messages=messages,
-        temperature=0.3,
-        max_tokens=500
-    )
-    
-    return response.choices[0].message.content or ""
+
+    # Use the SecurityLLMClient helper to construct messages and call OpenAI.
+    # This avoids constructing raw message dicts in tests (fixes Pylance typing).
+    return client.get_security_advice(query=query, system_prompt=prompt)
 
 def test_v3_baseline_performance(llm_client):
     """Test baseline performance of v3 (production) prompt"""

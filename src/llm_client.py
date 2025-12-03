@@ -30,7 +30,7 @@ Configuration:
 - Max tokens: 500 per response
 """
 import os
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, cast
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -73,7 +73,7 @@ class SecurityLLMClient:
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.3,
             max_tokens=500
         )
@@ -109,7 +109,7 @@ class SecurityLLMClient:
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.3,  # Lower temperature for more consistent security advice
             max_tokens=500
         )
@@ -137,7 +137,7 @@ class SecurityLLMClient:
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.1
         )
         
@@ -165,7 +165,7 @@ class SecurityLLMClient:
         
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=cast(List[ChatCompletionMessageParam], messages),
             temperature=0.2
         )
         
