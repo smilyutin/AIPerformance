@@ -16,7 +16,7 @@ This project provides a complete testing suite for validating LLM-generated secu
 ## 📁 Project Structure
 
 ```
-deepeval-starter/
+startDeepEval/
 ├── .github/
 │   └── workflows/
 │       └── deepeval.yml          # CI/CD pipeline with Ollama
@@ -24,6 +24,7 @@ deepeval-starter/
 │   ├── golden_dataset.json       # Golden test cases for accuracy
 │   └── rag_dataset.json          # RAG test cases with retrieval context
 ├── src/
+│   ├── __init__.py
 │   ├── llm_client_ollama.py      # Ollama client for security responses
 │   ├── rag_client_ollama.py      # Ollama RAG client with knowledge base
 │   ├── ollama_deepeval_model.py  # Ollama model wrapper for DeepEval
@@ -31,13 +32,16 @@ deepeval-starter/
 │   ├── llm_client.py             # (Legacy) OpenAI client
 │   └── rag_client.py             # (Legacy) OpenAI RAG client
 ├── tests/
+│   ├── __init__.py
 │   ├── conftest.py               # Pytest fixtures with Ollama config
 │   ├── test_accuracy.py          # Accuracy and relevancy tests
 │   ├── test_hallucination.py     # Hallucination detection tests
 │   ├── test_rag.py               # RAG retrieval and generation tests
 │   └── test_prompt_regression.py # Prompt version regression tests
+├── deepeval_results/             # Test results output directory
 ├── .env.example                  # Environment variables template
 ├── requirements.txt              # Python dependencies
+├── pyproject.toml                # Project configuration
 ├── pytest.ini                    # Pytest configuration
 └── README.md                     # This file
 ```

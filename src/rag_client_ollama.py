@@ -114,7 +114,8 @@ Provide a clear, accurate answer based on the context above."""
             ],
             options={
                 "temperature": 0.3,
-                "num_predict": 500
+                "num_predict": 800,  # Optimized for faster responses
+                "num_ctx": 2048,
             }
         )
         

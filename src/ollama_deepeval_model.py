@@ -15,7 +15,7 @@ Usage:
     # Use in metrics
     metric = AnswerRelevancyMetric(threshold=0.7, model=model)
 """
-from typing import Optional
+from typing import Optional, Any
 import ollama
 from deepeval.models.base_model import DeepEvalBaseLLM
 
@@ -44,13 +44,13 @@ class OllamaModel(DeepEvalBaseLLM):
         """Load the model (no-op for Ollama as it's already running)"""
         return self
     
-    def generate(self, prompt: str, schema: Optional[dict] = None) -> str:
+    def generate(self, prompt: str, schema: Optional[Any] = None) -> Any:
         """
         Generate response using Ollama
         
         Args:
             prompt: The prompt to generate from
-            schema: Optional JSON schema for structured output (Pydantic model)
+            schema: Optional Pydantic model or dict schema for structured output
             
         Returns:
             Generated text or structured object
@@ -69,7 +69,8 @@ class OllamaModel(DeepEvalBaseLLM):
             format=format_param,
             options={
                 "temperature": 0.0,  # Deterministic for eval
-                "num_predict": 1000,
+                "num_predict": 2000,  # Increased for better responses
+                "num_ctx": 4096,      # Larger context window
             }
         )
         
@@ -113,13 +114,13 @@ class OllamaModel(DeepEvalBaseLLM):
         
         return content
     
-    async def a_generate(self, prompt: str, schema: Optional[dict] = None) -> str:
+    async def a_generate(self, prompt: str, schema: Optional[Any] = None) -> Any:
         """
         Async generate (calls synchronous version for now)
         
         Args:
             prompt: The prompt to generate from
-            schema: Optional JSON schema for structured output
+            schema: Optional Pydantic model or dict schema for structured output
             
         Returns:
             Generated text or structured object
