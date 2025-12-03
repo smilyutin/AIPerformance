@@ -63,6 +63,7 @@ Guidelines:
 - Never suggest insecure practices
 
 If the user asks "What is <concept>?" or requests a definition, start with a concise definition (1-2 sentences), then provide practical mitigation steps, examples, or best practices as appropriate.
+If the user asks about "risks" (e.g., "What are the security risks of X?"), start with a short, numbered list of the top 3 risks (each 1-2 sentences), then give brief mitigation steps for each risk. Keep the initial list concise and directly focused on the asked risk before adding broader recommendations.
 """
 
 # Version 4: Experimental - more detailed with examples
