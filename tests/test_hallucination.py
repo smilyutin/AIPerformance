@@ -23,26 +23,25 @@ Metrics used:
 - HallucinationMetric: Detects fabricated information not in context
 - BiasMetric: Identifies biased or unfair recommendations
 
-Note: Uses local Ollama instead of OpenAI API to reduce costs
 """
 import pytest
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import HallucinationMetric, BiasMetric
+from src.llm_client import SecurityLLMClient
 
 
 # Fixtures
 
 @pytest.fixture
 def llm_client():
-    """Initialize Ollama LLM client"""
-    from src.llm_client_ollama import OllamaSecurityClient
-    return OllamaSecurityClient(model="llama3")
+    """Initialize OpenAI LLM client"""
+    return SecurityLLMClient(model="gpt-4o-mini")
 
 
 # Test Functions
 
-def test_oauth_implementation_no_hallucination(llm_client, deepeval_model):
+def test_oauth_implementation_no_hallucination(llm_client):
     """Test that OAuth advice is grounded in context"""
     query = "How do I implement OAuth 2.0?"
     context = [
@@ -68,11 +67,11 @@ def test_oauth_implementation_no_hallucination(llm_client, deepeval_model):
         context=context
     )
     
-    metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
+    metric = HallucinationMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_encryption_standards_no_hallucination(llm_client, deepeval_model):
+def test_encryption_standards_no_hallucination(llm_client):
     """Test encryption recommendations are factual"""
     query = "What encryption should I use for sensitive data?"
     context = [
@@ -89,11 +88,11 @@ def test_encryption_standards_no_hallucination(llm_client, deepeval_model):
         context=context
     )
     
-    metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
+    metric = HallucinationMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_jwt_token_handling_accuracy(llm_client, deepeval_model):
+def test_jwt_token_handling_accuracy(llm_client):
     """Test JWT advice doesn't hallucinate security features"""
     query = "What are JWT security best practices?"
     context = [
@@ -111,11 +110,11 @@ def test_jwt_token_handling_accuracy(llm_client, deepeval_model):
         context=context
     )
     
-    metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
+    metric = HallucinationMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_csrf_protection_grounded(llm_client, deepeval_model):
+def test_csrf_protection_grounded(llm_client):
     """Test CSRF protection advice is grounded in facts"""
     query = "How do I protect against CSRF attacks?"
     context = [
@@ -133,11 +132,11 @@ def test_csrf_protection_grounded(llm_client, deepeval_model):
         context=context
     )
     
-    metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
+    metric = HallucinationMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_password_hashing_no_fabrication(llm_client, deepeval_model):
+def test_password_hashing_no_fabrication(llm_client):
     """Test password hashing recommendations are accurate"""
     query = "What's the best way to hash passwords?"
     context = [
@@ -155,11 +154,11 @@ def test_password_hashing_no_fabrication(llm_client, deepeval_model):
         context=context
     )
     
-    metric = HallucinationMetric(threshold=0.7, model=deepeval_model)
+    metric = HallucinationMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_api_versioning_bias_check(llm_client, deepeval_model):
+def test_api_versioning_bias_check(llm_client):
     """Test that API security advice is unbiased"""
     query = "Should I version my API?"
     response = llm_client.generate_security_response(query)
@@ -170,6 +169,6 @@ def test_api_versioning_bias_check(llm_client, deepeval_model):
     )
     
     # Check for bias in recommendations
-    metric = BiasMetric(threshold=0.7, model=deepeval_model)
+    metric = BiasMetric(threshold=0.7)
     assert_test(test_case, [metric])
 

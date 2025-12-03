@@ -35,16 +35,16 @@ from deepeval.metrics import (
     ContextualRelevancyMetric,
     FaithfulnessMetric
 )
-from src.rag_client_ollama import OllamaSecurityRAGClient
+from src.rag_client import SecurityRAGClient
 
 
 @pytest.fixture
 def rag_client():
-    """Initialize Ollama RAG client"""
-    return OllamaSecurityRAGClient()
+    """Initialize RAG client"""
+    return SecurityRAGClient()
 
 
-def test_sql_injection_rag_retrieval(rag_client, deepeval_model):
+def test_sql_injection_rag_retrieval(rag_client):
     """Test RAG retrieval and generation for SQL injection"""
     query = "How do I prevent SQL injection attacks?"
     
@@ -56,13 +56,13 @@ def test_sql_injection_rag_retrieval(rag_client, deepeval_model):
         retrieval_context=result["retrieval_context"]
     )
     
-    contextual_relevancy = ContextualRelevancyMetric(threshold=0.25, model=deepeval_model)
-    faithfulness = FaithfulnessMetric(threshold=0.7, model=deepeval_model)
+    contextual_relevancy = ContextualRelevancyMetric(threshold=0.25)
+    faithfulness = FaithfulnessMetric(threshold=0.7)
     
     assert_test(test_case, [contextual_relevancy, faithfulness])
 
 
-def test_xss_prevention_context_precision(rag_client, deepeval_model):
+def test_xss_prevention_context_precision(rag_client):
     """Test context precision for XSS prevention query"""
     query = "What are the best ways to prevent XSS attacks?"
     expected_output = "Prevent XSS by sanitizing input, encoding output, using Content Security Policy headers, and HTTP-only cookies."
@@ -76,11 +76,11 @@ def test_xss_prevention_context_precision(rag_client, deepeval_model):
         retrieval_context=result["retrieval_context"]
     )
     
-    precision_metric = ContextualPrecisionMetric(threshold=0.6, model=deepeval_model)
+    precision_metric = ContextualPrecisionMetric(threshold=0.6)
     assert_test(test_case, [precision_metric])
 
 
-def test_rate_limiting_context_recall(rag_client, deepeval_model):
+def test_rate_limiting_context_recall(rag_client):
     """Test context recall for rate limiting query"""
     query = "Why is rate limiting important for API security?"
     expected_output = "Rate limiting protects APIs from abuse, prevents DDoS attacks, and ensures fair resource usage."
@@ -94,11 +94,11 @@ def test_rate_limiting_context_recall(rag_client, deepeval_model):
         retrieval_context=result["retrieval_context"]
     )
     
-    recall_metric = ContextualRecallMetric(threshold=0.6, model=deepeval_model)
+    recall_metric = ContextualRecallMetric(threshold=0.6)
     assert_test(test_case, [recall_metric])
 
 
-def test_authentication_methods_rag(rag_client, deepeval_model):
+def test_authentication_methods_rag(rag_client):
     """Test RAG for authentication methods query"""
     query = "What authentication methods should I use for my API?"
     
@@ -110,13 +110,13 @@ def test_authentication_methods_rag(rag_client, deepeval_model):
         retrieval_context=result["retrieval_context"]
     )
     
-    relevancy = ContextualRelevancyMetric(threshold=0.5, model=deepeval_model)
-    faithfulness = FaithfulnessMetric(threshold=0.6, model=deepeval_model)
+    relevancy = ContextualRelevancyMetric(threshold=0.5)
+    faithfulness = FaithfulnessMetric(threshold=0.6)
     
     assert_test(test_case, [relevancy, faithfulness])
 
 
-def test_least_privilege_with_custom_context(rag_client, deepeval_model):
+def test_least_privilege_with_custom_context(rag_client):
     """Test RAG with custom retrieval context"""
     query = "Explain the principle of least privilege"
     custom_context = [
@@ -134,10 +134,8 @@ def test_least_privilege_with_custom_context(rag_client, deepeval_model):
         retrieval_context=custom_context
     )
     
-    precision = ContextualPrecisionMetric(threshold=0.6, model=deepeval_model)
-    recall = ContextualRecallMetric(threshold=0.5, model=deepeval_model)  # Lowered for llama3 variance
-    # Skip Faithfulness in this test to avoid CI timeout (takes 7+ minutes)
-    # Faithfulness is covered adequately in other RAG tests
+    precision = ContextualPrecisionMetric(threshold=0.6)
+    recall = ContextualRecallMetric(threshold=0.5)
     
     assert_test(test_case, [precision, recall])
 
