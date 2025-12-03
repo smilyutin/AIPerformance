@@ -19,8 +19,6 @@ Metrics used:
 - AnswerRelevancyMetric: Measures how relevant responses are to queries
 - FaithfulnessMetric: Ensures responses are grounded in provided context
 - ContextualRelevancyMetric: Validates context relevance to queries
-
-Note: Uses local Ollama instead of OpenAI API to reduce costs
 """
 import pytest
 from deepeval import assert_test
@@ -35,7 +33,13 @@ def llm_client():
     return OllamaSecurityClient(model="llama3")
 
 
-def test_sql_injection_answer_relevancy(llm_client, deepeval_model):
+@pytest.fixture(scope="module")
+def llm_client():
+    """Initialize OpenAI LLM client"""
+    return SecurityLLMClient(model="gpt-4o-mini")
+
+
+def test_sql_injection_answer_relevancy(llm_client):
     """Test answer relevancy for SQL injection query"""
     query = "How do I prevent SQL injection in my API?"
     response = llm_client.generate_security_response(query)
@@ -45,11 +49,11 @@ def test_sql_injection_answer_relevancy(llm_client, deepeval_model):
         actual_output=response
     )
     
-    metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
+    metric = AnswerRelevancyMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_authentication_answer_relevancy(llm_client, deepeval_model):
+def test_authentication_answer_relevancy(llm_client):
     """Test answer relevancy for authentication query"""
     query = "What are the best practices for API authentication?"
     response = llm_client.generate_security_response(query)
@@ -59,11 +63,11 @@ def test_authentication_answer_relevancy(llm_client, deepeval_model):
         actual_output=response
     )
     
-    metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
+    metric = AnswerRelevancyMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_xss_prevention_accuracy(llm_client, deepeval_model):
+def test_xss_prevention_accuracy(llm_client):
     """Test accuracy of XSS prevention advice"""
     query = "How can I protect my web application from XSS attacks?"
     retrieval_context = [
@@ -79,12 +83,12 @@ def test_xss_prevention_accuracy(llm_client, deepeval_model):
     )
     
     # Only use AnswerRelevancyMetric to avoid timeout issues
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     
     assert_test(test_case, [relevancy_metric])
 
 
-def test_rate_limiting_with_context(llm_client, deepeval_model):
+def test_rate_limiting_with_context(llm_client):
     """Test contextual relevancy for rate limiting"""
     query = "Why should I implement rate limiting?"
     context = [
@@ -99,11 +103,11 @@ def test_rate_limiting_with_context(llm_client, deepeval_model):
         retrieval_context=context
     )
     
-    contextual_relevancy = ContextualRelevancyMetric(threshold=0.6, model=deepeval_model)
+    contextual_relevancy = ContextualRelevancyMetric(threshold=0.6)
     assert_test(test_case, [contextual_relevancy])
 
 
-def test_least_privilege_explanation(llm_client, deepeval_model):
+def test_least_privilege_explanation(llm_client):
     """Test explanation of least privilege principle"""
     query = "Explain the principle of least privilege"
     response = llm_client.generate_security_response(query)
@@ -114,11 +118,11 @@ def test_least_privilege_explanation(llm_client, deepeval_model):
         expected_output="The principle of least privilege means granting only minimum necessary permissions to users and systems."
     )
     
-    metric = AnswerRelevancyMetric(threshold=0.7, model=deepeval_model)
+    metric = AnswerRelevancyMetric(threshold=0.7)
     assert_test(test_case, [metric])
 
 
-def test_api_key_security_advice(llm_client, deepeval_model):
+def test_api_key_security_advice(llm_client):
     """Test API key security recommendations"""
     query = "How should I store and manage API keys securely?"
     retrieval_context = [
@@ -133,6 +137,6 @@ def test_api_key_security_advice(llm_client, deepeval_model):
         retrieval_context=retrieval_context
     )
     
-    faithfulness_metric = FaithfulnessMetric(threshold=0.7, model=deepeval_model)
+    faithfulness_metric = FaithfulnessMetric(threshold=0.7)
     assert_test(test_case, [faithfulness_metric])
 

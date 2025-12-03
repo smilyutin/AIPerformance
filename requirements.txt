@@ -14,7 +14,6 @@ deepeval>=0.21.0
 
 # Optional: Enhanced testing
 pytest-cov>=4.1.0
-pytest-xdist>=3.3.0
 
 # Optional: Type checking
 mypy>=1.5.0

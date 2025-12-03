@@ -50,6 +50,36 @@ class SecurityLLMClient:
         self.model = model
         self.client = OpenAI(api_key=self.api_key)
     
+    def get_security_advice(self, query: str, system_prompt: Optional[str] = None) -> str:
+        """
+        Generate security advice with optional custom system prompt
+        
+        Args:
+            query: User's security question
+            system_prompt: Optional custom system prompt (for prompt version testing)
+            
+        Returns:
+            Generated response
+        """
+        if system_prompt is None:
+            system_prompt = """You are a security expert assistant. Provide accurate, 
+            concise answers about API security, authentication, authorization, and 
+            common vulnerabilities. Focus on practical, actionable advice."""
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query}
+        ]
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=500
+        )
+        
+        return response.choices[0].message.content or ""
+    
     def generate_security_response(self, query: str, context: Optional[str] = None) -> str:
         """
         Generate a security-focused response
