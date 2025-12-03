@@ -7,13 +7,17 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true  # Cancel redundant runs
+
 jobs:
   deepeval-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 90  # Increased timeout for slow CI runners
     
     strategy:
-      fail-fast: false  # Continue other jobs even if one fails
+      fail-fast: true  # Stop all jobs on first failure to save CI minutes
       matrix:
         test-suite: 
           - tests/test_accuracy.py
@@ -71,10 +75,13 @@ jobs:
     
     - name: Run DeepEval Tests - ${{ matrix.test-suite }}
       env:
+        CI: true  # Auto-detected by code for optimized settings
         OLLAMA_NUM_PARALLEL: 1  # Limit parallel requests
         OLLAMA_MAX_LOADED_MODELS: 1
+        OLLAMA_KEEP_ALIVE: 5m  # Keep model loaded between tests
+        DEEPEVAL_PER_TASK_TIMEOUT_SECONDS_OVERRIDE: 600  # 10 minutes per metric
       run: |
-        pytest ${{ matrix.test-suite }} -v --tb=short
+        pytest ${{ matrix.test-suite }} -v --tb=short --maxfail=1  # Stop on first failure
     
     - name: Upload test results
       if: always()
